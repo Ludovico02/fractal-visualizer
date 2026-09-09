@@ -5,17 +5,15 @@ import { FRACTAL_PRESETS } from '@/constants/fractals';
 
 interface FractalCanvasProps {
   config: RenderConfig;
+  engine: any;
 }
 
-export function FractalCanvas({ config }: FractalCanvasProps) {
-  // Get the initial coordinates for the selected fractal
+export function FractalCanvas({ config, engine }: FractalCanvasProps) {
   const fractal = FRACTAL_PRESETS[config.fractalId as keyof typeof FRACTAL_PRESETS];
-  
-  // Initialize navigation state
   const { viewportRef, events } = useFractalNavigation(fractal.defaultCenter, fractal.defaultZoom);
   
   // Pass the ref to the WebGL engine
-  const canvasRef = useWebGL(config, viewportRef);
+  const canvasRef = useWebGL(config, viewportRef, engine);
 
   return (
     <canvas
