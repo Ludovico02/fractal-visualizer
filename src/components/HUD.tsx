@@ -28,16 +28,19 @@ export function HUD({ isAnimated, onToggleAnimation, onBackToMenu }: HUDProps) {
   return (
     <div className="absolute top-4 right-4 z-50">
       <DropdownMenu>
-        <DropdownMenuTrigger>
-          <Button 
-            variant="outline" 
-            size="icon" 
-            className="border-input bg-background/80 text-foreground hover:bg-accent hover:text-accent-foreground backdrop-blur-sm"
-          >
-            <Settings className="h-5 w-5" />
-          </Button>
-        </DropdownMenuTrigger>
-        
+        <DropdownMenuTrigger
+          aria-label="Open fractal menu"
+          render={
+            <Button
+              variant="outline"
+              size="icon"
+              className="border-input bg-background/80 text-foreground hover:bg-accent hover:text-accent-foreground backdrop-blur-sm"
+            >
+              <Settings className="h-5 w-5" />
+            </Button>
+          }
+        />
+
         <DropdownMenuContent align="end" className="w-48 border-border bg-popover text-popover-foreground">
           <DropdownMenuItem 
             onClick={onToggleAnimation}
