@@ -21,6 +21,7 @@ import {
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
+import { COLOR_PALETTES } from "@/constants/palettes";
 
 interface MainMenuProps {
   onStart: (config: RenderConfig) => void;
@@ -30,9 +31,17 @@ export function MainMenu({ onStart }: MainMenuProps) {
   const [selectedFractal, setSelectedFractal] =
     useState<FractalId>("mandelbrot");
   const [isAnimated, setIsAnimated] = useState<boolean>(true);
+  const [selectedPalette, setSelectedPalette] = useState<string>("ocean");
+
+  const selectedPaletteName =
+    COLOR_PALETTES[selectedPalette]?.name ?? "Deep Ocean";
 
   const handleStart = () => {
-    onStart({ fractalId: selectedFractal, isAnimated });
+    onStart({
+      fractalId: selectedFractal,
+      isAnimated,
+      paletteId: selectedPalette,
+    });
   };
 
   const currentFractal = FRACTAL_PRESETS[selectedFractal];
@@ -111,6 +120,34 @@ export function MainMenu({ onStart }: MainMenuProps) {
               onCheckedChange={setIsAnimated}
               className="data-[state=checked]:bg-primary"
             />
+          </div>
+          <div className="mt-4 flex w-64 flex-col gap-2">
+            <Label className="text-sm text-muted-foreground">Color Palette</Label>
+            <Select
+              value={selectedPalette}
+              onValueChange={(value) => {
+                if (value && value in COLOR_PALETTES) {
+                  setSelectedPalette(value);
+                }
+              }}
+            >
+              <SelectTrigger className="w-full border-input bg-background text-foreground">
+                <SelectValue placeholder={selectedPaletteName}>
+                  {selectedPaletteName}
+                </SelectValue>
+              </SelectTrigger>
+              <SelectContent className="border-border bg-popover text-popover-foreground">
+                {Object.values(COLOR_PALETTES).map((palette) => (
+                  <SelectItem
+                    key={palette.id}
+                    value={palette.id}
+                    className="focus:bg-accent focus:text-accent-foreground"
+                  >
+                    {palette.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
         </CardContent>
 

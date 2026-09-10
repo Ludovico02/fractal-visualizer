@@ -19,7 +19,7 @@ export function FractalCanvas({ config, engine }: FractalCanvasProps) {
     <canvas
       ref={canvasRef}
       {...events} // Attach all mouse handlers
-      className="absolute inset-0 block h-full w-full bg-black cursor-grab active:cursor-grabbing"
+      className="absolute inset-0 block h-full w-full bg-background cursor-grab active:cursor-grabbing"
     />
   );
 }
