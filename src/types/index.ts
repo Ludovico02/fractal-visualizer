@@ -29,7 +29,7 @@ export interface ViewportState {
 export interface RenderConfig {
   fractalId: FractalId;
   isAnimated: boolean;
-  paletteId?: string;
+  paletteId: string;
 }
 
 export type AppView = 'MENU' | 'VISUALIZER' | 'SETTINGS';
