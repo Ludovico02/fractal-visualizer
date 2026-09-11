@@ -1,4 +1,5 @@
 #include <emscripten/emscripten.h>
+#include "formulas.h"
 
 const int MAX_ITER = 1000;
 double orbit_data[MAX_ITER * 2];
@@ -6,7 +7,7 @@ double orbit_data[MAX_ITER * 2];
 extern "C"
 {
     EMSCRIPTEN_KEEPALIVE
-    double *calculateReferenceOrbit(double cx, double cy, int max_iter)
+    double *calculateReferenceOrbit(double cx, double cy, int max_iter, int fractal_type = 0)
     {
         if (max_iter > MAX_ITER)
         {
@@ -30,8 +31,13 @@ extern "C"
             double zx2 = zx * zx;
             double zy2 = zy * zy;
 
-            if (zx2 + zy2 > 4.0)
-                break;
+            if (zx2 + zy2 > 4.0) break;
+
+            // if (fractal_type == 1) {
+            //     calc_burning_ship(zx, zy, cx, cy, zx2, zy2);
+            // } else {
+            //     calc_mandelbrot(zx, zy, cx, cy, zx2, zy2); // Default to Mandelbrot
+            // }
 
             zy = 2.0 * zx * zy + cy;
             zx = zx2 - zy2 + cx;
