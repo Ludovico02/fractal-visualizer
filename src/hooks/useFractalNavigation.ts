@@ -22,13 +22,23 @@ export function useFractalNavigation(initialCenter: Point2D, initialZoom: number
         e.preventDefault();
       }
     };
-    
+
     window.addEventListener('wheel', preventCanvasScroll, { passive: false });
-    
+
     return () => {
       window.removeEventListener('wheel', preventCanvasScroll);
     };
   }, []);
+
+  useEffect(() => {
+    const handleReCenter = () => {
+      viewportRef.current.center = { x: initialCenter.x, y: initialCenter.y };
+      viewportRef.current.zoom = initialZoom;
+    };
+
+    window.addEventListener("fractal-re-center", handleReCenter);
+    return () => window.removeEventListener("fractal-re-center", handleReCenter);
+  }, [initialCenter, initialZoom]);
 
   const onMouseDown = useCallback((e: React.MouseEvent<HTMLCanvasElement>) => {
     isDragging.current = true;
@@ -40,14 +50,14 @@ export function useFractalNavigation(initialCenter: Point2D, initialZoom: number
 
     const dx = e.clientX - lastMousePos.current.x;
     const dy = e.clientY - lastMousePos.current.y;
-    
+
     lastMousePos.current = { x: e.clientX, y: e.clientY };
 
     const canvas = e.currentTarget;
     const scale = 1.0 / (canvas.clientHeight * viewportRef.current.zoom);
 
     viewportRef.current.center.x -= dx * scale;
-    viewportRef.current.center.y += dy * scale; 
+    viewportRef.current.center.y += dy * scale;
   }, []);
 
   const onMouseUp = useCallback(() => {
@@ -81,7 +91,7 @@ export function useFractalNavigation(initialCenter: Point2D, initialZoom: number
     // Adjust the center to lock the mathematical point under the cursor
     viewportRef.current.center.x += uvX * ((1.0 / oldZoom) - (1.0 / newZoom));
     viewportRef.current.center.y += uvY * ((1.0 / oldZoom) - (1.0 / newZoom));
-    
+
     // Apply the new zoom
     viewportRef.current.zoom = newZoom;
   }, []);
