@@ -1534,7 +1534,7 @@ function assignWasmExports(wasmExports) {
   assert(typeof wasmExports['emscripten_stack_get_current'] != 'undefined', 'missing Wasm export: emscripten_stack_get_current');
   assert(typeof wasmExports['memory'] != 'undefined', 'missing Wasm export: memory');
   assert(typeof wasmExports['__indirect_function_table'] != 'undefined', 'missing Wasm export: __indirect_function_table');
-  _calculateReferenceOrbit = Module['_calculateReferenceOrbit'] = createExportWrapper('calculateReferenceOrbit', wasmExports['calculateReferenceOrbit'], 3);
+  _calculateReferenceOrbit = Module['_calculateReferenceOrbit'] = createExportWrapper('calculateReferenceOrbit', wasmExports['calculateReferenceOrbit'], 4);
   _fflush = createExportWrapper('fflush', wasmExports['fflush'], 1);
   _emscripten_stack_init = wasmExports['emscripten_stack_init'];
   _emscripten_stack_get_free = wasmExports['emscripten_stack_get_free'];

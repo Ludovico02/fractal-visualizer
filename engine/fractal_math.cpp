@@ -1,17 +1,26 @@
 #include <emscripten/emscripten.h>
 #include "formulas.h"
+#include <cstring>
 
 const int MAX_ITER = 1000;
 double orbit_data[MAX_ITER * 2];
 
+typedef void (*FractalFormula)(double &, double &, double, double, double, double);
+
 extern "C"
 {
     EMSCRIPTEN_KEEPALIVE
-    double *calculateReferenceOrbit(double cx, double cy, int max_iter, int fractal_type = 0)
+    double *calculateReferenceOrbit(double cx, double cy, int max_iter, const char *fractal_name)
     {
         if (max_iter > MAX_ITER)
         {
             max_iter = MAX_ITER;
+        }
+
+        FractalFormula active_formula = calc_mandelbrot;
+        if (std::strcmp(fractal_name, "burning_ship") == 0)
+        {
+            active_formula = calc_burning_ship;
         }
 
         for (int i = 0; i < max_iter; i++)
@@ -31,16 +40,10 @@ extern "C"
             double zx2 = zx * zx;
             double zy2 = zy * zy;
 
-            if (zx2 + zy2 > 4.0) break;
+            if (zx2 + zy2 > 4.0)
+                break;
 
-            // if (fractal_type == 1) {
-            //     calc_burning_ship(zx, zy, cx, cy, zx2, zy2);
-            // } else {
-            //     calc_mandelbrot(zx, zy, cx, cy, zx2, zy2); // Default to Mandelbrot
-            // }
-
-            zy = 2.0 * zx * zy + cy;
-            zx = zx2 - zy2 + cx;
+            active_formula(zx, zy, cx, cy, zx2, zy2);
         }
 
         return orbit_data;

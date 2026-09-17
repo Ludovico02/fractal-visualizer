@@ -12,7 +12,7 @@ emcc fractal_math.cpp -o engine.js -s EXPORTED_RUNTIME_METHODS="['ccall','cwrap'
 
 - [ ] Make phone user able to move around
 - [ ] Fix phone resolution
-- [x] Dynamic color palettea
+- [x] Dynamic color palette
 - [x] Back to center button
-- [ ] Dynamic centering
-- [ ] Add other fractal pertrbations
+- [ ] Dynamic centering?
+- [ ] Add other fractal perturbations

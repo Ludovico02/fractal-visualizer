@@ -110,11 +110,13 @@ export function useWebGL(config: RenderConfig, viewportRef: RefObject<ViewportSt
 
       const maxIter = 200;
 
+      const fractalId = config.fractalId;
+
       const pointer = engine.ccall(
         "calculateReferenceOrbit",
         "number",
-        ["number", "number", "number"],
-        [viewportRef.current.center.x, viewportRef.current.center.y, maxIter]
+        ["number", "number", "number", "string"],
+        [viewportRef.current.center.x, viewportRef.current.center.y, maxIter, fractalId]
       );
 
       const orbitArray64 = new Float64Array(engine.HEAPF64.buffer, pointer, maxIter * 2);
