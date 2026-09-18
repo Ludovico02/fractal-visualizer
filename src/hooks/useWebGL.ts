@@ -110,13 +110,30 @@ export function useWebGL(config: RenderConfig, viewportRef: RefObject<ViewportSt
 
       const maxIter = 200;
 
+      // Temporary hard coded
+      const juliaSeedX = -0.8;
+      const juliaSeedY = 0.156;
+
       const fractalId = config.fractalId;
+
+      // Defaults
+      let startZx = 0.0;
+      let startZy = 0.0;
+      let constCx = viewportRef.current.center.x;
+      let constCy = viewportRef.current.center.y;
+
+      if (fractalId === 'julia') {
+        startZx = viewportRef.current.center.x;
+        startZy = viewportRef.current.center.y;
+        constCx = juliaSeedX;
+        constCy = juliaSeedY;
+      }
 
       const pointer = engine.ccall(
         "calculateReferenceOrbit",
         "number",
-        ["number", "number", "number", "string"],
-        [viewportRef.current.center.x, viewportRef.current.center.y, maxIter, fractalId]
+        ["number", "number","number", "number", "number", "string"],
+        [startZx, startZy, constCx, constCy, maxIter, fractalId]
       );
 
       const orbitArray64 = new Float64Array(engine.HEAPF64.buffer, pointer, maxIter * 2);
@@ -139,6 +156,10 @@ export function useWebGL(config: RenderConfig, viewportRef: RefObject<ViewportSt
       gl.uniform1i(validItersLoc, validIters);
 
       gl.uniform2f(centerLocation, viewportRef.current.center.x, viewportRef.current.center.y);
+
+      // CPU fallback for Julia
+      const juliaSeedLoc = gl.getUniformLocation(program, "u_julia_seed");
+      gl.uniform2f(juliaSeedLoc, juliaSeedX, juliaSeedY);
 
       const activePalette = COLOR_PALETTES[config.paletteId] || COLOR_PALETTES['ocean'];
 

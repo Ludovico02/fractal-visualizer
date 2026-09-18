@@ -9,6 +9,8 @@ uniform int u_ref_valid_iters;
 
 uniform vec2 u_ref_orbit[200];
 
+uniform vec2 u_julia_seed;
+
 // OLD COLOR PALETTE FOR INITIAL TESTING
 // vec3 palette(float t) {
 //   vec3 a = vec3(0.5, 0.5, 0.5);

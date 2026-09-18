@@ -53,4 +53,28 @@ export const FRACTAL_PRESETS: Record<FractalId, FractalPreset> = {
     defaultCenter: { x: -1.75, y: 0.04 },
     defaultZoom: 2.5,
   },
+  julia: {
+    id: "julia",
+    name: "Julia Set",
+    equation: "dz_{n+1} = 2Z_n dz_n + dz_n^2",
+    glslCore: `
+      if (i == 0) {
+        dz = dc; 
+      }
+      
+      if (i < u_ref_valid_iters) {
+        Z_abs = Z + dz;
+        
+        vec2 term1 = vec2(Z.x * dz.x - Z.y * dz.y, Z.x * dz.y + Z.y * dz.x) * 2.0;
+        vec2 term2 = vec2(dz.x * dz.x - dz.y * dz.y, 2.0 * dz.x * dz.y);
+        
+        // NO "+ dc" at the end, because delta C is zero!
+        dz = term1 + term2; 
+      } else {
+        Z_abs = vec2(Z_abs.x * Z_abs.x - Z_abs.y * Z_abs.y, 2.0 * Z_abs.x * Z_abs.y) + u_julia_seed;
+      }
+    `,
+    defaultCenter: { x: 0.0, y: 0.0 },
+    defaultZoom: 0.8,
+  },
 };
