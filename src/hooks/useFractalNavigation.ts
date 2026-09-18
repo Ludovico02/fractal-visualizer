@@ -81,6 +81,10 @@ export function useFractalNavigation(initialCenter: Point2D, initialZoom: number
     const oldZoom = viewportRef.current.zoom;
     let newZoom = oldZoom;
 
+    // TEST    
+    viewportRef.current.zoom = newZoom;
+    console.log("Current Zoom:", newZoom.toExponential(2));
+
     // Determine zoom direction
     if (e.deltaY < 0) {
       newZoom *= zoomFactor; // Scroll up -> Zoom in

@@ -1,6 +1,6 @@
 import { useEffect, useRef, type RefObject } from "react";
 import { FRACTAL_PRESETS } from "@/constants/fractals";
-import type { RenderConfig, ViewportState } from '@/types';
+import type { RenderConfig, ViewportState } from "@/types";
 
 // Import shaders as raw strings
 import VERTEX_SHADER_SRC from "@/shaders/fullscreen.vert?raw";
@@ -24,7 +24,11 @@ function compileShader(
   return shader;
 }
 
-export function useWebGL(config: RenderConfig, viewportRef: RefObject<ViewportState>, engine: any) {
+export function useWebGL(
+  config: RenderConfig,
+  viewportRef: RefObject<ViewportState>,
+  engine: any,
+) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
@@ -122,7 +126,7 @@ export function useWebGL(config: RenderConfig, viewportRef: RefObject<ViewportSt
       let constCx = viewportRef.current.center.x;
       let constCy = viewportRef.current.center.y;
 
-      if (fractalId === 'julia') {
+      if (fractalId === "julia") {
         startZx = viewportRef.current.center.x;
         startZy = viewportRef.current.center.y;
         constCx = juliaSeedX;
@@ -132,11 +136,15 @@ export function useWebGL(config: RenderConfig, viewportRef: RefObject<ViewportSt
       const pointer = engine.ccall(
         "calculateReferenceOrbit",
         "number",
-        ["number", "number","number", "number", "number", "string"],
-        [startZx, startZy, constCx, constCy, maxIter, fractalId]
+        ["number", "number", "number", "number", "number", "string"],
+        [startZx, startZy, constCx, constCy, maxIter, fractalId],
       );
 
-      const orbitArray64 = new Float64Array(engine.HEAPF64.buffer, pointer, maxIter * 2);
+      const orbitArray64 = new Float64Array(
+        engine.HEAPF64.buffer,
+        pointer,
+        maxIter * 2,
+      );
 
       let validIters = maxIter;
       for (let i = 1; i < maxIter; i++) {
@@ -152,16 +160,21 @@ export function useWebGL(config: RenderConfig, viewportRef: RefObject<ViewportSt
       const refOrbitLocation = gl.getUniformLocation(program, "u_ref_orbit");
       gl.uniform2fv(refOrbitLocation, orbitArray32);
 
-      const validItersLoc = gl.getUniformLocation(program, 'u_ref_valid_iters');
+      const validItersLoc = gl.getUniformLocation(program, "u_ref_valid_iters");
       gl.uniform1i(validItersLoc, validIters);
 
-      gl.uniform2f(centerLocation, viewportRef.current.center.x, viewportRef.current.center.y);
+      gl.uniform2f(
+        centerLocation,
+        viewportRef.current.center.x,
+        viewportRef.current.center.y,
+      );
 
       // CPU fallback for Julia
       const juliaSeedLoc = gl.getUniformLocation(program, "u_julia_seed");
       gl.uniform2f(juliaSeedLoc, juliaSeedX, juliaSeedY);
 
-      const activePalette = COLOR_PALETTES[config.paletteId] || COLOR_PALETTES['ocean'];
+      const activePalette =
+        COLOR_PALETTES[config.paletteId] || COLOR_PALETTES["ocean"];
 
       const locA = gl.getUniformLocation(program, "u_palette_a");
       const locB = gl.getUniformLocation(program, "u_palette_b");
