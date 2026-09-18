@@ -12,7 +12,7 @@ emcc fractal_math.cpp -o engine.js -s EXPORTED_RUNTIME_METHODS="['ccall','cwrap'
 
 - [ ] Make phone user able to move around
 - [ ] Fix phone resolution
+- [ ] Develop sliders to morph the Julia set
 - [x] Dynamic color palette
 - [x] Back to center button
 - [ ] Dynamic centering?
-- [ ] Add other fractal perturbations
