@@ -112,7 +112,7 @@ export function HUD({
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
-      <div className="absolute bottom-4 left-4 z-50 flex items-center gap-2">
+      <div className="absolute top-4 left-4 z-50 flex items-center gap-2">
         <Button
           variant="outline"
           size="icon"
