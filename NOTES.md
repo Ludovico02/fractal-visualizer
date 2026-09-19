@@ -18,3 +18,4 @@ emcc fractal_math.cpp -o engine.js -s EXPORTED_RUNTIME_METHODS="['ccall','cwrap'
 - [x] Back to center button
 - [ ] Update README
 - [ ] Dynamic centering?
+- [ ] On some browsers it lags
