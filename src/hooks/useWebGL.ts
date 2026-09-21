@@ -78,11 +78,22 @@ export function useWebGL(
     gl.enableVertexAttribArray(positionLocation);
     gl.vertexAttribPointer(positionLocation, 2, gl.FLOAT, false, 0, 0);
 
-    // Get Uniform Locations
     const resolutionLocation = gl.getUniformLocation(program, "u_resolution");
     const centerLocation = gl.getUniformLocation(program, "u_center");
     const zoomLocation = gl.getUniformLocation(program, "u_zoom");
     const timeLocation = gl.getUniformLocation(program, "u_time");
+    const refOrbitLocation = gl.getUniformLocation(program, "u_ref_orbit");
+    const validItersLoc = gl.getUniformLocation(program, "u_ref_valid_iters");
+    const juliaSeedLoc = gl.getUniformLocation(program, "u_julia_seed");
+    const locA = gl.getUniformLocation(program, "u_palette_a");
+    const locB = gl.getUniformLocation(program, "u_palette_b");
+    const locC = gl.getUniformLocation(program, "u_palette_c");
+    const locD = gl.getUniformLocation(program, "u_palette_d");
+
+    const orbitArray32 = new Float32Array(2000);
+    let lastCenterX = 0;
+    let lastCenterY = 0;
+    let lastZoom = 0;
 
     let animationFrameId: number;
     let startTime = performance.now();
@@ -102,90 +113,85 @@ export function useWebGL(
         ? (currentTime - startTime) / 1000
         : 0;
 
+      const currentCenterX = viewportRef.current.center.x;
+      const currentCenterY = viewportRef.current.center.y;
+      const currentZoom = viewportRef.current.zoom;
+
       // Pass the LIVE variables to the GPU from viewportRef
       gl.uniform2f(resolutionLocation, canvas.width, canvas.height);
-      gl.uniform2f(
-        centerLocation,
-        viewportRef.current.center.x,
-        viewportRef.current.center.y,
-      );
+      gl.uniform2f(centerLocation, currentCenterX, currentCenterY);
       gl.uniform1f(zoomLocation, viewportRef.current.zoom);
       gl.uniform1f(timeLocation, elapsedTime);
 
-      const maxIter = 200;
+      const fractalId = config.fractalId;
 
-      // Temporary hard coded
+      // Temporarily hard coded
       const juliaSeedX = -0.8;
       const juliaSeedY = 0.156;
 
-      const fractalId = config.fractalId;
-
-      // Defaults
-      let startZx = 0.0;
-      let startZy = 0.0;
-      let constCx = viewportRef.current.center.x;
-      let constCy = viewportRef.current.center.y;
-
       if (fractalId === "julia") {
-        startZx = viewportRef.current.center.x;
-        startZy = viewportRef.current.center.y;
-        constCx = juliaSeedX;
-        constCy = juliaSeedY;
+        gl.uniform2f(juliaSeedLoc, juliaSeedX, juliaSeedY);
       }
 
-      const pointer = engine.ccall(
-        "calculateReferenceOrbit",
-        "number",
-        ["number", "number", "number", "number", "number", "string"],
-        [startZx, startZy, constCx, constCy, maxIter, fractalId],
-      );
-
-      const orbitArray64 = new Float64Array(
-        engine.HEAPF64.buffer,
-        pointer,
-        maxIter * 2,
-      );
-
-      let validIters = maxIter;
-      for (let i = 1; i < maxIter; i++) {
-        if (orbitArray64[i * 2] === 0 && orbitArray64[i * 2 + 1] === 0) {
-          validIters = i;
-          break;
-        }
-      }
-
-      // WebGL requires 32-bit arrays
-      const orbitArray32 = new Float32Array(orbitArray64);
-
-      const refOrbitLocation = gl.getUniformLocation(program, "u_ref_orbit");
-      gl.uniform2fv(refOrbitLocation, orbitArray32);
-
-      const validItersLoc = gl.getUniformLocation(program, "u_ref_valid_iters");
-      gl.uniform1i(validItersLoc, validIters);
-
-      gl.uniform2f(
-        centerLocation,
-        viewportRef.current.center.x,
-        viewportRef.current.center.y,
-      );
-
-      // CPU fallback for Julia
-      const juliaSeedLoc = gl.getUniformLocation(program, "u_julia_seed");
-      gl.uniform2f(juliaSeedLoc, juliaSeedX, juliaSeedY);
-
+      // COLORS
       const activePalette =
         COLOR_PALETTES[config.paletteId] || COLOR_PALETTES["ocean"];
-
-      const locA = gl.getUniformLocation(program, "u_palette_a");
-      const locB = gl.getUniformLocation(program, "u_palette_b");
-      const locC = gl.getUniformLocation(program, "u_palette_c");
-      const locD = gl.getUniformLocation(program, "u_palette_d");
 
       gl.uniform3fv(locA, new Float32Array(activePalette.a));
       gl.uniform3fv(locB, new Float32Array(activePalette.b));
       gl.uniform3fv(locC, new Float32Array(activePalette.c));
       gl.uniform3fv(locD, new Float32Array(activePalette.d));
 
+      if (
+        currentCenterX !== lastCenterX ||
+        currentCenterY !== lastCenterY ||
+        currentZoom !== lastZoom
+      ) {
+        const maxIter = 200;
+
+        let startZx = 0.0;
+        let startZy = 0.0;
+        let constCx = currentCenterX;
+        let constCy = currentCenterY;
+
+        if (fractalId === "julia") {
+          startZx = currentCenterX;
+          startZy = currentCenterY;
+          constCx = juliaSeedX;
+          constCy = juliaSeedY;
+        }
+
+        const pointer = engine.ccall(
+          "calculateReferenceOrbit",
+          "number",
+          ["number", "number", "number", "number", "number", "string"],
+          [startZx, startZy, constCx, constCy, maxIter, fractalId],
+        );
+
+        const orbitArray64 = new Float64Array(
+          engine.HEAPF64.buffer,
+          pointer,
+          maxIter * 2,
+        );
+
+        let validIters = maxIter;
+        for (let i = 1; i < maxIter; i++) {
+          if (orbitArray64[i * 2] === 0 && orbitArray64[i * 2 + 1] === 0) {
+            validIters = i;
+            break;
+          }
+        }
+
+        // Avoid Garbage Collection lag by reusing the array
+        orbitArray32.set(orbitArray64);
+
+        gl.uniform2fv(refOrbitLocation, orbitArray32);
+        gl.uniform1i(validItersLoc, validIters);
+
+        lastCenterX = currentCenterX;
+        lastCenterY = currentCenterY;
+        lastZoom = currentZoom;
+      }
       gl.drawArrays(gl.TRIANGLES, 0, 6);
       animationFrameId = requestAnimationFrame(render);
     };
