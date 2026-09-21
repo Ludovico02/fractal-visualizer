@@ -90,7 +90,17 @@ export function useWebGL(
     const locC = gl.getUniformLocation(program, "u_palette_c");
     const locD = gl.getUniformLocation(program, "u_palette_d");
 
+    // COLORS
+    const activePalette =
+      COLOR_PALETTES[config.paletteId] || COLOR_PALETTES["ocean"];
+
+    gl.uniform3fv(locA, new Float32Array(activePalette.a));
+    gl.uniform3fv(locB, new Float32Array(activePalette.b));
+    gl.uniform3fv(locC, new Float32Array(activePalette.c));
+    gl.uniform3fv(locD, new Float32Array(activePalette.d));
+
     const orbitArray32 = new Float32Array(2000);
+
     let lastCenterX = 0;
     let lastCenterY = 0;
     let lastZoom = 0;
@@ -132,15 +142,6 @@ export function useWebGL(
       if (fractalId === "julia") {
         gl.uniform2f(juliaSeedLoc, juliaSeedX, juliaSeedY);
       }
-
-      // COLORS
-      const activePalette =
-        COLOR_PALETTES[config.paletteId] || COLOR_PALETTES["ocean"];
-
-      gl.uniform3fv(locA, new Float32Array(activePalette.a));
-      gl.uniform3fv(locB, new Float32Array(activePalette.b));
-      gl.uniform3fv(locC, new Float32Array(activePalette.c));
-      gl.uniform3fv(locD, new Float32Array(activePalette.d));
 
       if (
         currentCenterX !== lastCenterX ||
