@@ -1,6 +1,8 @@
 import { useRef, useCallback, useEffect } from "react";
 import { type ViewportState } from "@/types";
 
+const MIN_ZOOM = 0.1;
+
 interface Point2D {
   x: number;
   y: number;
@@ -95,8 +97,8 @@ export function useFractalNavigation(
     let newZoom = oldZoom;
 
     // TEST
-    // viewportRef.current.zoom = newZoom;
-    // console.log("Current Zoom:", newZoom.toExponential(2));
+    viewportRef.current.zoom = newZoom;
+    console.log("Current Zoom:", newZoom.toExponential(2));
 
     // Determine zoom direction
     if (e.deltaY < 0) {
@@ -104,6 +106,9 @@ export function useFractalNavigation(
     } else {
       newZoom /= zoomFactor; // Scroll down -> Zoom out
     }
+
+    // Limit zoomout
+    newZoom = Math.max(MIN_ZOOM, newZoom);
 
     // Adjust the center to lock the mathematical point under the cursor
     viewportRef.current.center.x += uvX * (1.0 / oldZoom - 1.0 / newZoom);
@@ -166,7 +171,8 @@ export function useFractalNavigation(
 
       const distRatio = newDist / lastTouchDistance.current;
       const oldZoom = viewportRef.current.zoom;
-      const newZoom = oldZoom * distRatio;
+
+      const newZoom = Math.max(MIN_ZOOM, oldZoom * distRatio);
 
       const dx = newCenter.x - lastTouchCenter.current.x;
       const dy = newCenter.y - lastTouchCenter.current.y;
