@@ -2,7 +2,8 @@
 
 An interactive, real-time fractal explorer that runs in the browser. Pan and zoom deep into the Mandelbrot set, the Burning Ship and Julia sets, rendered on the GPU with WebGL and powered by a C++ math core compiled to WebAssembly.
 
-<!-- Add a screenshot or GIF here, e.g. ![Fractal Visualizer](docs/screenshot.png) -->
+<img src="assets/menu.png" alt="menu" width="400px">
+<img src="assets/fractal.png" alt="menu" width="600px">
 
 ## Features
 
@@ -152,3 +153,4 @@ The menu and renderer pick up any new entry in `FRACTAL_PRESETS` automatically.
 
 ## License
 
+[MIT](./LICENSEù)
