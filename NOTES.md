@@ -12,10 +12,9 @@ emcc fractal_math.cpp -o engine.js -s EXPORTED_RUNTIME_METHODS="['ccall','cwrap'
 
 - [x] Make phone user able to move around
 - [x] Fix phone resolution
-- [ ] Develop sliders to morph the Julia set
+- [ ] Develop sliders to morph the Julia set?
 - [x] Fix re center HUD element on mobile
 - [x] Dynamic color palette
 - [x] Back to center button
 - [ ] Update README
 - [ ] Dynamic centering?
-- [ ] On some browsers it lags
